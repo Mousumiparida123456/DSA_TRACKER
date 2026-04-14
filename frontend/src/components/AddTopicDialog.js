@@ -21,8 +21,10 @@ import {
 const categories = [
   "Arrays", "Strings", "Linked Lists", "Stacks", "Queues",
   "Trees", "Graphs", "Dynamic Programming", "Recursion",
-  "Backtracking", "Greedy", "Sorting", "Searching",
-  "Hashing", "Heaps", "Trie", "Bit Manipulation", "Math", "Other"
+  "Backtracking", "Recursion & Backtracking", "Greedy", "Sorting", "Searching",
+  "Binary Search", "Hashing", "Heaps", "Trie", "Bit Manipulation",
+  "Two Pointers", "Sliding Window", "Intervals", "Matrix", "Design",
+  "Math", "Other"
 ];
 
 const difficulties = ["easy", "medium", "hard"];

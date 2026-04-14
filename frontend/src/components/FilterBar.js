@@ -13,8 +13,10 @@ import {
 const categories = [
   "Arrays", "Strings", "Linked Lists", "Stacks", "Queues",
   "Trees", "Graphs", "Dynamic Programming", "Recursion",
-  "Backtracking", "Greedy", "Sorting", "Searching",
-  "Hashing", "Heaps", "Trie", "Bit Manipulation", "Math", "Other"
+  "Backtracking", "Recursion & Backtracking", "Greedy", "Sorting", "Searching",
+  "Binary Search", "Hashing", "Heaps", "Trie", "Bit Manipulation",
+  "Two Pointers", "Sliding Window", "Intervals", "Matrix", "Design",
+  "Math", "Other"
 ];
 
 const difficulties = ["easy", "medium", "hard"];
@@ -72,12 +74,12 @@ export default function FilterBar({ filters, setFilters }) {
           <Label className="text-xs tracking-[0.2em] uppercase font-bold mb-2 block">
             CATEGORY
           </Label>
-          <Select value={filters.category} onValueChange={(val) => setFilters({ ...filters, category: val })}>
+          <Select value={filters.category || "all"} onValueChange={(val) => setFilters({ ...filters, category: val === "all" ? "" : val })}>
             <SelectTrigger className="rounded-none border-border" data-testid="category-filter-select">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent className="rounded-none border-border">
-              <SelectItem value="" className="rounded-none" data-testid="category-filter-all">All Categories</SelectItem>
+              <SelectItem value="all" className="rounded-none" data-testid="category-filter-all">All Categories</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat} className="rounded-none" data-testid={`category-filter-${cat}`}>
                   {cat}
@@ -92,12 +94,12 @@ export default function FilterBar({ filters, setFilters }) {
           <Label className="text-xs tracking-[0.2em] uppercase font-bold mb-2 block">
             DIFFICULTY
           </Label>
-          <Select value={filters.difficulty} onValueChange={(val) => setFilters({ ...filters, difficulty: val })}>
+          <Select value={filters.difficulty || "all"} onValueChange={(val) => setFilters({ ...filters, difficulty: val === "all" ? "" : val })}>
             <SelectTrigger className="rounded-none border-border" data-testid="difficulty-filter-select">
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
             <SelectContent className="rounded-none border-border">
-              <SelectItem value="" className="rounded-none" data-testid="difficulty-filter-all">All Difficulties</SelectItem>
+              <SelectItem value="all" className="rounded-none" data-testid="difficulty-filter-all">All Difficulties</SelectItem>
               {difficulties.map((diff) => (
                 <SelectItem key={diff} value={diff} className="rounded-none capitalize" data-testid={`difficulty-filter-${diff}`}>
                   {diff}
@@ -112,12 +114,12 @@ export default function FilterBar({ filters, setFilters }) {
           <Label className="text-xs tracking-[0.2em] uppercase font-bold mb-2 block">
             STATUS
           </Label>
-          <Select value={filters.status} onValueChange={(val) => setFilters({ ...filters, status: val })}>
+          <Select value={filters.status || "all"} onValueChange={(val) => setFilters({ ...filters, status: val === "all" ? "" : val })}>
             <SelectTrigger className="rounded-none border-border" data-testid="status-filter-select">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent className="rounded-none border-border">
-              <SelectItem value="" className="rounded-none" data-testid="status-filter-all">All Statuses</SelectItem>
+              <SelectItem value="all" className="rounded-none" data-testid="status-filter-all">All Statuses</SelectItem>
               {statuses.map((status) => (
                 <SelectItem key={status.value} value={status.value} className="rounded-none" data-testid={`status-filter-${status.value}`}>
                   {status.label}
