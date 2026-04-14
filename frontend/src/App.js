@@ -110,6 +110,17 @@ function App() {
     }
   };
 
+  const bulkUpdateStatus = async (topicIds, status) => {
+    try {
+      await axios.put(`${API}/topics/bulk-update`, { topic_ids: topicIds, status });
+      await Promise.all([fetchTopics(), fetchStats(), fetchReminders()]);
+      toast.success(`Updated ${topicIds.length} topics`);
+    } catch (error) {
+      console.error("Error bulk updating:", error);
+      toast.error("Failed to update topics");
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -141,6 +152,7 @@ function App() {
         updateTopic={updateTopic}
         deleteTopic={deleteTopic}
         markReviewed={markReviewed}
+        bulkUpdateStatus={bulkUpdateStatus}
       />
       <Toaster position="top-right" />
     </div>

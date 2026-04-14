@@ -181,6 +181,19 @@ class DSATrackerAPITester:
         
         if success:
             print(f"Stats - Total: {response.get('total', 0)}, Completed: {response.get('completed', 0)}")
+            # Test enhanced stats with category_progress
+            if 'category_progress' in response:
+                print(f"✅ Category progress field found with {len(response['category_progress'])} categories")
+                # Check structure of category_progress
+                for cat, data in response['category_progress'].items():
+                    if all(key in data for key in ['total', 'completed', 'in_progress', 'not_started']):
+                        print(f"✅ Category '{cat}' has correct progress structure")
+                    else:
+                        print(f"❌ Category '{cat}' missing required progress fields")
+                        return False
+            else:
+                print("❌ Category progress field missing from stats response")
+                return False
         return success
 
     def test_get_reminders(self):
@@ -229,6 +242,114 @@ class DSATrackerAPITester:
         if success:
             print("Topic deleted successfully")
         return success
+
+    def test_bulk_update_status(self):
+        """Test bulk updating topic status"""
+        # First create multiple topics for bulk update
+        topic_ids = []
+        for i in range(3):
+            topic_data = {
+                "name": f"Bulk Test Topic {i+1}",
+                "category": "Arrays",
+                "difficulty": "easy",
+                "notes": f"Test topic {i+1} for bulk update",
+                "problem_link": f"https://example.com/problem{i+1}"
+            }
+            
+            success, response = self.run_test(
+                f"Create Bulk Test Topic {i+1}",
+                "POST",
+                "topics",
+                200,
+                data=topic_data
+            )
+            
+            if success and 'id' in response:
+                topic_ids.append(response['id'])
+                self.created_topics.append(response['id'])
+        
+        if len(topic_ids) < 3:
+            print("❌ Failed to create topics for bulk update test")
+            return False
+        
+        # Test bulk update to completed
+        bulk_data = {
+            "topic_ids": topic_ids,
+            "status": "completed"
+        }
+        
+        success, response = self.run_test(
+            "Bulk Update Status to Completed",
+            "PUT",
+            "topics/bulk-update",
+            200,
+            data=bulk_data
+        )
+        
+        if success:
+            print(f"✅ Bulk update response: {response}")
+            
+            # Verify the topics were actually updated
+            for topic_id in topic_ids:
+                verify_success, verify_response = self.run_test(
+                    f"Verify Topic {topic_id} Status",
+                    "GET",
+                    f"topics?search=Bulk Test Topic",
+                    200
+                )
+                
+                if verify_success:
+                    # Find the specific topic and check its status
+                    topic_found = False
+                    for topic in verify_response:
+                        if topic['id'] == topic_id:
+                            topic_found = True
+                            if topic['status'] == 'completed':
+                                print(f"✅ Topic {topic_id} successfully updated to completed")
+                            else:
+                                print(f"❌ Topic {topic_id} status is {topic['status']}, expected completed")
+                                return False
+                            break
+                    
+                    if not topic_found:
+                        print(f"❌ Topic {topic_id} not found in verification")
+                        return False
+        
+        return success
+
+    def test_sorting_functionality(self):
+        """Test sorting functionality"""
+        # Test sorting by different fields
+        sort_tests = [
+            ("name", "asc"),
+            ("name", "desc"),
+            ("difficulty", "asc"),
+            ("difficulty", "desc"),
+            ("category", "asc"),
+            ("category", "desc"),
+            ("status", "asc"),
+            ("status", "desc"),
+            ("created_at", "asc"),
+            ("created_at", "desc")
+        ]
+        
+        all_passed = True
+        for sort_by, sort_order in sort_tests:
+            success, response = self.run_test(
+                f"Sort by {sort_by} {sort_order}",
+                "GET",
+                "topics",
+                200,
+                params={"sort_by": sort_by, "sort_order": sort_order}
+            )
+            
+            if success:
+                print(f"✅ Sorting by {sort_by} {sort_order} returned {len(response)} topics")
+            else:
+                print(f"❌ Sorting by {sort_by} {sort_order} failed")
+                all_passed = False
+        
+        return all_passed
 
     def test_error_cases(self):
         """Test error handling"""
@@ -283,9 +404,14 @@ def main():
         tests_passed.append(tester.test_get_stats())
         tests_passed.append(tester.test_get_reminders())
         tests_passed.append(tester.test_mark_reviewed(topic_id))
+        
+        # Test new enhanced features
+        tests_passed.append(tester.test_bulk_update_status())
+        tests_passed.append(tester.test_sorting_functionality())
+        
         tests_passed.append(tester.test_delete_topic(topic_id))
     else:
-        tests_passed.extend([False] * 7)
+        tests_passed.extend([False] * 9)
     
     # Error handling tests
     tests_passed.append(tester.test_error_cases())

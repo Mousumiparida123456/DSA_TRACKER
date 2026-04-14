@@ -98,6 +98,7 @@ class Stats(BaseModel):
     not_started: int
     by_difficulty: dict
     by_category: dict
+    category_progress: dict
 
 def calculate_next_review(last_review_str: str, review_count: int) -> str:
     """Calculate next review date based on spaced repetition"""
@@ -241,9 +242,19 @@ async def get_stats():
     }
     
     by_category = {}
+    category_progress = {}
     for topic in topics:
         cat = topic["category"]
         by_category[cat] = by_category.get(cat, 0) + 1
+        if cat not in category_progress:
+            category_progress[cat] = {"total": 0, "completed": 0, "in_progress": 0, "not_started": 0}
+        category_progress[cat]["total"] += 1
+        if topic["status"] == Status.COMPLETED:
+            category_progress[cat]["completed"] += 1
+        elif topic["status"] == Status.IN_PROGRESS:
+            category_progress[cat]["in_progress"] += 1
+        else:
+            category_progress[cat]["not_started"] += 1
     
     return Stats(
         total=total,
@@ -251,8 +262,27 @@ async def get_stats():
         in_progress=in_progress,
         not_started=not_started,
         by_difficulty=by_difficulty,
-        by_category=by_category
+        by_category=by_category,
+        category_progress=category_progress
     )
+
+class BulkUpdateRequest(BaseModel):
+    topic_ids: List[str]
+    status: Status
+
+@api_router.put("/topics/bulk-update")
+async def bulk_update_status(req: BulkUpdateRequest):
+    update_data = {"status": req.status}
+    if req.status == Status.COMPLETED:
+        now = datetime.now(timezone.utc).isoformat()
+        update_data["last_reviewed"] = now
+        update_data["next_review"] = calculate_next_review(now, 0)
+    
+    result = await db.topics.update_many(
+        {"id": {"$in": req.topic_ids}},
+        {"$set": update_data}
+    )
+    return {"message": f"Updated {result.modified_count} topics"}
 
 # Include the router in the main app
 app.include_router(api_router)
