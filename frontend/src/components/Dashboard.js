@@ -6,7 +6,9 @@ import {
   Bell, 
   CheckCircle, 
   Circle, 
-  CircleDashed 
+  CircleDashed,
+  SortAscending,
+  SortDescending
 } from "@phosphor-icons/react";
 import StatsCards from "./StatsCards";
 import TopicCard from "./TopicCard";
@@ -15,6 +17,13 @@ import FilterBar from "./FilterBar";
 import RevisionReminders from "./RevisionReminders";
 import ProgressChart from "./ProgressChart";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Dashboard({
   topics,
@@ -23,6 +32,10 @@ export default function Dashboard({
   loading,
   filters,
   setFilters,
+  sortBy,
+  setSortBy,
+  sortOrder,
+  setSortOrder,
   addTopic,
   updateTopic,
   deleteTopic,
@@ -110,13 +123,45 @@ export default function Dashboard({
         )}
 
         {/* Topics Grid */}
-        <div className="mb-6">
-          <h2 className="text-2xl sm:text-3xl tracking-tight font-bold font-sans mb-1" data-testid="topics-section-title">
-            ALL TOPICS
-          </h2>
-          <p className="text-xs tracking-[0.2em] uppercase font-bold text-muted-foreground">
-            {topics.length} {topics.length === 1 ? 'TOPIC' : 'TOPICS'}
-          </p>
+        <div className="mb-6 flex items-end justify-between flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl tracking-tight font-bold font-sans mb-1" data-testid="topics-section-title">
+              ALL TOPICS
+            </h2>
+            <p className="text-xs tracking-[0.2em] uppercase font-bold text-muted-foreground">
+              {topics.length} {topics.length === 1 ? 'TOPIC' : 'TOPICS'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs tracking-[0.2em] uppercase font-bold text-muted-foreground whitespace-nowrap">SORT BY</span>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="rounded-none border-border w-[160px]" data-testid="sort-by-select">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-none border-border">
+                  <SelectItem value="created_at" className="rounded-none" data-testid="sort-date-added">Date Added</SelectItem>
+                  <SelectItem value="name" className="rounded-none" data-testid="sort-name">Name</SelectItem>
+                  <SelectItem value="difficulty" className="rounded-none" data-testid="sort-difficulty">Difficulty</SelectItem>
+                  <SelectItem value="category" className="rounded-none" data-testid="sort-category">Category</SelectItem>
+                  <SelectItem value="status" className="rounded-none" data-testid="sort-status">Status</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              className="rounded-none border-border hover:bg-foreground hover:text-background transition-colors px-3"
+              data-testid="sort-order-button"
+            >
+              {sortOrder === "asc" ? (
+                <SortAscending size={20} weight="bold" />
+              ) : (
+                <SortDescending size={20} weight="bold" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {topics.length === 0 ? (

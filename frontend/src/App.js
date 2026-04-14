@@ -19,6 +19,8 @@ function App() {
     status: "",
     search: ""
   });
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const fetchTopics = async () => {
     try {
@@ -27,6 +29,8 @@ function App() {
       if (filters.difficulty) params.append("difficulty", filters.difficulty);
       if (filters.status) params.append("status", filters.status);
       if (filters.search) params.append("search", filters.search);
+      params.append("sort_by", sortBy);
+      params.append("sort_order", sortOrder);
       
       const response = await axios.get(`${API}/topics?${params.toString()}`);
       setTopics(response.data);
@@ -115,9 +119,10 @@ function App() {
     loadData();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchTopics();
-  }, [filters]);
+  }, [filters, sortBy, sortOrder]);
 
   return (
     <div className="App">
@@ -128,6 +133,10 @@ function App() {
         loading={loading}
         filters={filters}
         setFilters={setFilters}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
         addTopic={addTopic}
         updateTopic={updateTopic}
         deleteTopic={deleteTopic}

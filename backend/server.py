@@ -122,7 +122,9 @@ async def get_topics(
     category: Optional[str] = None,
     difficulty: Optional[str] = None,
     status: Optional[str] = None,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    sort_by: Optional[str] = "created_at",
+    sort_order: Optional[str] = "desc"
 ):
     query = {}
     
@@ -135,7 +137,12 @@ async def get_topics(
     if search:
         query["name"] = {"$regex": search, "$options": "i"}
     
-    topics = await db.topics.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    # Determine sort field and direction
+    allowed_sort_fields = {"name", "difficulty", "created_at", "category", "status"}
+    sort_field = sort_by if sort_by in allowed_sort_fields else "created_at"
+    direction = 1 if sort_order == "asc" else -1
+    
+    topics = await db.topics.find(query, {"_id": 0}).sort(sort_field, direction).to_list(1000)
     return topics
 
 @api_router.post("/topics", response_model=Topic)
