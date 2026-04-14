@@ -25,14 +25,18 @@ User uploaded DSA SHEET.docx with 241 LeetCode problems across 16 DSA patterns.
 
 ## What's Been Implemented (April 14, 2026)
 - Full CRUD API for topics
-- 16 DSA pattern categories: Arrays, Linked Lists, Trees, Binary Search, Graphs, Recursion & Backtracking, Two Pointers, Sliding Window, Dynamic Programming, Greedy, Heaps, Strings, Intervals, Matrix, Bit Manipulation, Design
-- 241 problems seeded with proper LeetCode links
-- Dashboard with stats cards, progress charts, topic grid
+- 16 DSA pattern categories with 241 seeded LeetCode problems
+- Dashboard with overall progress bar, stats cards, pie charts
+- **Pattern Progress section** with per-category progress bars (clickable to filter)
+- **Table view** (default) with compact rows, checkboxes, inline status change
+- **Grid view** toggle with card layout
+- **Bulk status update** — select all / individual checkboxes + bulk mark completed/in-progress/not-started
+- **Sorting** by Name, Difficulty, Category, Status, Date Added (asc/desc)
 - Filter bar with search, category, difficulty, status filters
 - Add/Edit/Delete topic dialogs
-- Status tracking with spaced repetition reminders
+- Status tracking with spaced repetition revision reminders
 - Mark as reviewed functionality
-- Responsive design with Swiss/high-contrast aesthetic
+- Responsive Swiss/high-contrast design (Cabinet Grotesk + IBM Plex Mono)
 
 ## Prioritized Backlog
 ### P0 (Critical)
