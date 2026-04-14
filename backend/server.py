@@ -161,6 +161,24 @@ async def create_topic(topic: TopicCreate):
     await db.topics.insert_one(doc)
     return topic_obj
 
+class BulkUpdateRequest(BaseModel):
+    topic_ids: List[str]
+    status: Status
+
+@api_router.put("/topics/bulk-update")
+async def bulk_update_status(req: BulkUpdateRequest):
+    update_data = {"status": req.status}
+    if req.status == Status.COMPLETED:
+        now = datetime.now(timezone.utc).isoformat()
+        update_data["last_reviewed"] = now
+        update_data["next_review"] = calculate_next_review(now, 0)
+    
+    result = await db.topics.update_many(
+        {"id": {"$in": req.topic_ids}},
+        {"$set": update_data}
+    )
+    return {"message": f"Updated {result.modified_count} topics"}
+
 @api_router.put("/topics/{topic_id}", response_model=Topic)
 async def update_topic(topic_id: str, update: TopicUpdate):
     existing = await db.topics.find_one({"id": topic_id}, {"_id": 0})
@@ -265,24 +283,6 @@ async def get_stats():
         by_category=by_category,
         category_progress=category_progress
     )
-
-class BulkUpdateRequest(BaseModel):
-    topic_ids: List[str]
-    status: Status
-
-@api_router.put("/topics/bulk-update")
-async def bulk_update_status(req: BulkUpdateRequest):
-    update_data = {"status": req.status}
-    if req.status == Status.COMPLETED:
-        now = datetime.now(timezone.utc).isoformat()
-        update_data["last_reviewed"] = now
-        update_data["next_review"] = calculate_next_review(now, 0)
-    
-    result = await db.topics.update_many(
-        {"id": {"$in": req.topic_ids}},
-        {"$set": update_data}
-    )
-    return {"message": f"Updated {result.modified_count} topics"}
 
 # Include the router in the main app
 app.include_router(api_router)
